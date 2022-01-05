@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(mediacapture)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("FFmpegHome," $ENV{FFmpegHome})
@@ -17,9 +17,11 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Widgets Core REQUIRED)
 
-add_executable(mediacapture WIN32 MainForm.ui
+file(GLOB video_capture_SRC VideoCapture/*.cpp VideoCapture/*.h)
+add_executable(mediacapture  MainForm.ui
 MainForm.cpp
 main.cpp
+${video_capture_SRC}
 )
 
 target_link_libraries(mediacapture  Qt5::Widgets Qt5::Core )
