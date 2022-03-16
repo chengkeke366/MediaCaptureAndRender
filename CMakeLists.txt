@@ -9,19 +9,30 @@ message("FFmpegHome," $ENV{FFmpegHome})
 
 set(CMAKE_PREFIX_PATH $ENV{QTDIR})
 include_directories($ENV{FFmpegHome}/include)
+include_directories(${PROJECT_SOURCE_DIR})
 link_directories($ENV{FFmpegHome}/lib)
 
+
+message("PROJECT_SOURCE_DIR," ${PROJECT_SOURCE_DIR})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Widgets Core REQUIRED)
 
-file(GLOB video_capture_SRC VideoCapture/*.cpp VideoCapture/*.h)
+file(GLOB video_module VideoModule/*.cpp VideoModule/*.h)
+file(GLOB audio_module AudioModule/*.cpp AudioModule/*.h)
+
+source_group(video_module FILES ${video_module})
+source_group(audio_module FILES ${audio_module})
+
 add_executable(mediacapture  MainForm.ui
+global.h
+MainForm.h
 MainForm.cpp
 main.cpp
-${video_capture_SRC}
+${video_module}
+${audio_module}
 )
 
 target_link_libraries(mediacapture  Qt5::Widgets Qt5::Core )

@@ -59,7 +59,7 @@ public:
 	};
 	//   Register capture data callback
 	virtual void RegisterCaptureDataCallback(
-		VideoSinkInterface<VideoFrame>* dataCallback) = 0;
+		VideoSinkInterface* dataCallback) = 0;
 
 	//  Remove capture data callback
 	virtual void DeRegisterCaptureDataCallback() = 0;

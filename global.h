@@ -21,3 +21,9 @@ enum VideoRotation {
 	kVideoRotation_180 = 180,
 	kVideoRotation_270 = 270
 };
+
+
+enum WindowsDeviceType {
+  kDefaultCommunicationDevice = -1,
+  kDefaultDevice = -2
+};
