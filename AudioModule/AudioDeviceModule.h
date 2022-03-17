@@ -67,6 +67,9 @@ public:
   int32_t SetMicrophoneMute(bool enable);
   int32_t MicrophoneMute(bool& enabled);
 private:
+  int32_t GetDefaultMicDevice(IMMDevice** ppDevice);
+  int32_t GetDefaultSpeakerDevice(IMMDevice** ppDevice);
+private:
   IMMDeviceEnumerator* m_device_enumer;
   IMMDeviceCollection* m_capture_collection;
   IMMDeviceCollection* m_render_collection;
@@ -79,5 +82,15 @@ private:
   IAudioRenderClient* m_auido_render_client;
   IAudioEndpointVolume* m_capture_volume;
   ISimpleAudioVolume* m_render_volume;
+
+  HANDLE _hRenderSamplesReadyEvent;
+  HANDLE _hPlayThread;
+  HANDLE _hRenderStartedEvent;
+  HANDLE _hShutdownRenderEvent;
+
+  HANDLE _hCaptureSamplesReadyEvent;
+  HANDLE _hRecThread;
+  HANDLE _hCaptureStartedEvent;
+  HANDLE _hShutdownCaptureEvent;
 };
 

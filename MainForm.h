@@ -6,6 +6,7 @@
 #include <memory>
 #include <atomic>
 
+#include "AudioModule/AudioDeviceModule.h"
 namespace Ui
 {
 class MainForm;
@@ -23,6 +24,7 @@ public:
 	~MainForm();
 private:
 	Ui::MainForm*ui;
+	AudioDeviceModule m_audio_module;
 };
 
 #endif // frmSwitchButton_H

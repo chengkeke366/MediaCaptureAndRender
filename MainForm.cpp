@@ -8,6 +8,7 @@ MainForm::MainForm(QWidget *parent) :
 	ui(new Ui::MainForm)
 {
 	ui->setupUi(this);	
+	m_audio_module.InitRecording(2, 48000, 2);
 }
 
 MainForm::~MainForm()
