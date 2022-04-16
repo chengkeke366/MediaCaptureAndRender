@@ -26,6 +26,14 @@ file(GLOB audio_module AudioModule/*.cpp AudioModule/*.h)
 source_group(video_module FILES ${video_module})
 source_group(audio_module FILES ${audio_module})
 
+if(WIN32)
+file(GLOB win_video_capture VideoModule/windows/*.cpp VideoModule/windows/*.h)
+file(GLOB win_audio_capture AudioModule/windows/*.cpp AudioModule/windows/*.h)
+source_group(video_module\\windows FILES ${win_video_capture})
+source_group(audio_module\\windows  FILES ${win_audio_capture})
+endif()
+
+
 add_executable(mediacapture  MainForm.ui
 global.h
 MainForm.h
@@ -33,6 +41,8 @@ MainForm.cpp
 main.cpp
 ${video_module}
 ${audio_module}
+${win_video_capture}
+${win_audio_capture}
 )
 
 target_link_libraries(mediacapture  Qt5::Widgets Qt5::Core )

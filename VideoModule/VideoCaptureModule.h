@@ -94,6 +94,7 @@ public:
 	virtual bool GetApplyRotation() = 0;
 
 protected:
-	~VideoCaptureModule()  {}
+	VideoCaptureModule() {}
+	virtual ~VideoCaptureModule()  {}
 };
 
