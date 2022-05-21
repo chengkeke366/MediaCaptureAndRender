@@ -5,6 +5,7 @@
 #include <Audioclient.h>// WASAPI
 #include <Audiopolicy.h>
 #include <endpointvolume.h>
+#include "global.h"
 
 static const int kAdmMaxDeviceNameSize = 128;
 static const int kAdmMaxFileNameSize = 512;
@@ -15,10 +16,6 @@ static const int kAdmMaxPlayoutBufferSizeMs = 250;
 
 class AudioDeviceModule
 {
-  enum WindowsDeviceType {
-    kDefaultCommunicationDevice = -1,
-    kDefaultDevice = -2
-  };
 public:
   AudioDeviceModule();
   ~AudioDeviceModule();
@@ -35,10 +32,9 @@ public:
 
   // Device selection
   int32_t SetPlayoutDevice(uint16_t index) ;
-  int32_t SetPlayoutDevice(AudioDeviceModule::WindowsDeviceType device);
+  int32_t SetPlayoutDevice(WindowsDeviceType device);
   int32_t SetRecordingDevice(uint16_t index) ;
-  int32_t SetRecordingDevice(
-      AudioDeviceModule::WindowsDeviceType device) ;
+  int32_t SetRecordingDevice(WindowsDeviceType device) ;
 
   //Device Init
   int32_t InitRecording(uint8_t channel, uint32_t SampleRate, uint8_t BytesPerSample);

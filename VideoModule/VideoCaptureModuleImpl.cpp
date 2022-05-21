@@ -24,47 +24,47 @@ void VideoCaptureModuleImpl::DeRegisterCaptureDataCallback()
 
 int32_t VideoCaptureModuleImpl::StartCapture(const VideoCaptureCapability& capability)
 {
-
+  return 0;
 }
 
 int32_t VideoCaptureModuleImpl::StopCapture()
 {
-
+  return 0;
 }
 
 const char* VideoCaptureModuleImpl::CurrentDeviceName() const
 {
-
+  return 0;
 }
 
 bool VideoCaptureModuleImpl::CaptureStarted()
 {
-
+  return 0;
 }
 
 int32_t VideoCaptureModuleImpl::CaptureSettings(VideoCaptureCapability& settings)
 {
-
+  return 0;
 }
 
 int32_t VideoCaptureModuleImpl::SetCaptureRotation(VideoRotation rotation)
 {
-
+  return 0;
 }
 
 bool VideoCaptureModuleImpl::SetApplyRotation(bool enable)
 {
-
+  return 0;
 }
 
 bool VideoCaptureModuleImpl::GetApplyRotation()
 {
-
+  return 0;
 }
 
 int32_t VideoCaptureModuleImpl::IncomingFrame(uint8_t* videoFrame, size_t videoFrameLength, const VideoCaptureCapability& frameInfo, int64_t captureTime /*= 0*/)
 {
-
+  return 0;
 }
 
 VideoCaptureModuleImpl::VideoCaptureModuleImpl()
