@@ -6,7 +6,7 @@ class VideoCaptureModuleImpl :public VideoCaptureModule
 {
 public:
   static std::shared_ptr<VideoCaptureModule> Create(const char* deviceIdUtf8);
-
+  static DeviceInfo* CreateDeviceInfo();
   virtual void RegisterCaptureDataCallback(
     VideoSinkInterface* dataCallback) override;
 

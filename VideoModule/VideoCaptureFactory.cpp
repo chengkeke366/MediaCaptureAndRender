@@ -16,5 +16,5 @@ std::shared_ptr<VideoCaptureModule> VideoCaptureFactory::Create(const char* devi
 
 VideoCaptureModule::DeviceInfo* VideoCaptureFactory::CreateDeviceInfo()
 {
-  return VideoCaptureModuleImpl::
+  return VideoCaptureModuleImpl::CreateDeviceInfo();
 }

@@ -1,5 +1,35 @@
 #include "VideoCaptureDS.h"
 
+DeviceInfoDS* DeviceInfoDS::Create()
+{
+  DeviceInfoDS* dsInfo = new DeviceInfoDS();
+  if (!dsInfo || dsInfo->Init() != 0) {
+    delete dsInfo;
+    dsInfo = NULL;
+  }
+  return dsInfo;
+}
+
+DeviceInfoDS::DeviceInfoDS()
+{
+
+}
+
+DeviceInfoDS::~DeviceInfoDS()
+{
+
+}
+
+int32_t DeviceInfoDS::Init()
+{
+  return 0;
+}
+
+int32_t DeviceInfoDS::CreateCapabilityMap(const char* deviceUniqueIdUTF8)
+{
+  return 0;
+}
+
 uint32_t DeviceInfoDS::NumberOfDevices()
 {
   return 0;

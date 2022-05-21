@@ -1,5 +1,6 @@
 #include "VideoCaptureModuleImpl.h"
 #include "VideoModule/windows/VideoCaptureDS.h"
+#include "VideoModule/windows/DeviceInfoDS.h"
 
 std::shared_ptr<VideoCaptureModule> VideoCaptureModuleImpl::Create(const char* deviceIdUtf8)
 {
@@ -10,6 +11,11 @@ std::shared_ptr<VideoCaptureModule> VideoCaptureModuleImpl::Create(const char* d
   auto impl = std::make_shared<VideoCaptureDS>();
   impl->Init(deviceIdUtf8);
   return impl;
+}
+
+VideoCaptureModule::DeviceInfo* VideoCaptureModuleImpl::CreateDeviceInfo()
+{
+  return DeviceInfoDS::Create();
 }
 
 void VideoCaptureModuleImpl::RegisterCaptureDataCallback(VideoSinkInterface* dataCallback)

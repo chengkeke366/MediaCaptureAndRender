@@ -1,8 +1,17 @@
 #pragma once
 
 #include <memory>
-#include "VideoModule/VideoCaptureModule.h"
-class DeviceInfoDS : public VideoCaptureModule::DeviceInfo {
+#include "VideoModule/DeviceInfoImpl.h"
+class DeviceInfoDS : public DeviceInfoImpl {
+
+public:
+  // Factory function.
+  static DeviceInfoDS* Create();
+  DeviceInfoDS();
+  ~DeviceInfoDS() override;
+
+  int32_t Init() override;
+  int32_t CreateCapabilityMap(const char* deviceUniqueIdUTF8) override;
   virtual uint32_t NumberOfDevices() override;
 
   // Returns the available capture devices.
