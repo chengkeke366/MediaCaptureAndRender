@@ -63,8 +63,8 @@ public:
   int32_t SetMicrophoneMute(bool enable);
   int32_t MicrophoneMute(bool& enabled);
 private:
-  int32_t GetDefaultMicDevice(IMMDevice** ppDevice);
-  int32_t GetDefaultSpeakerDevice(IMMDevice** ppDevice);
+  int32_t _GetDefaultMicDevice(IMMDevice** ppDevice);
+  int32_t _GetDefaultSpeakerDevice(IMMDevice** ppDevice);
 private:
   IMMDeviceEnumerator* m_device_enumer;
   IMMDeviceCollection* m_capture_collection;

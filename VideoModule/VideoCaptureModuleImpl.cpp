@@ -8,14 +8,41 @@ std::shared_ptr<VideoCaptureModule> VideoCaptureModuleImpl::Create(const char* d
   {
     return nullptr;
   }
+#ifdef WIN32
   auto impl = std::make_shared<VideoCaptureDS>();
   impl->Init(deviceIdUtf8);
+#elif __linux__
+
+#elif __APPLE__
+  #include <TargetConditionals.h>
+  #if TARGET_IPHONE_SIMULATOR
+    // iOS Simulator
+  #elif TARGET_OS_IPHONE
+    // iOS device
+  #elif TARGET_OS_MAC
+    //Mac OS
+  #endif
+#endif 
+
   return impl;
 }
 
 VideoCaptureModule::DeviceInfo* VideoCaptureModuleImpl::CreateDeviceInfo()
 {
+#ifdef WIN32
   return DeviceInfoDS::Create();
+#elif __linux__
+
+#elif __APPLE__
+  #include <TargetConditionals.h>
+  #if TARGET_IPHONE_SIMULATOR
+    // iOS Simulator
+  #elif TARGET_OS_IPHONE
+    // iOS device
+  #elif TARGET_OS_MAC
+    //Mac OS
+  #endif
+#endif 
 }
 
 void VideoCaptureModuleImpl::RegisterCaptureDataCallback(VideoSinkInterface* dataCallback)

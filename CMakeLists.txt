@@ -33,7 +33,7 @@ source_group(video_module\\windows FILES ${win_video_capture})
 source_group(audio_module\\windows  FILES ${win_audio_capture})
 endif()
 
-
+link_libraries(strmbase.lib)
 add_executable(mediacapture  MainForm.ui
 global.h
 MainForm.h
@@ -45,4 +45,4 @@ ${win_video_capture}
 ${win_audio_capture}
 )
 
-target_link_libraries(mediacapture  Qt5::Widgets Qt5::Core )
+target_link_libraries(mediacapture  Qt5::Widgets Qt5::Core)
