@@ -42,7 +42,6 @@ main.cpp
 ${video_module}
 ${audio_module}
 ${win_video_capture}
-${win_audio_capture}
-)
+${win_audio_capture}  tools/string_utils.h)
 
 target_link_libraries(mediacapture  Qt5::Widgets Qt5::Core)
