@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-
+#include <thread>
 #include <mmdeviceapi.h>// MMDevice
 #include <Audioclient.h>// WASAPI
 #include <Audiopolicy.h>
@@ -50,7 +50,7 @@ public:
     int32_t InitPlayout(uint8_t channel, uint32_t SampleRate, uint8_t BytesPerSample);
 
     // Audio capture
-    void StartRecorde(const char *output_file);
+    int32_t StartRecorde(const char *output_file);
 
     //Audio render
     int32_t StartPlayout(const char *intput_file);
@@ -89,6 +89,7 @@ private:
                           char name[kAdmMaxDeviceNameSize],
                           char guid[kAdmMaxGuidSize]);
 
+    int32_t DoCaptureThread();
 private:
     IMMDeviceEnumerator *m_device_enumer{nullptr};
     IMMDeviceCollection *m_capture_collection{nullptr};
@@ -128,7 +129,17 @@ private:
     _playChannelsPrioList[2] = 4;  // quad is prio 3
      * */
     uint16_t _playChannelsPrioList[3] {2,1,4};
+    UINT _recAudioFrameSize;
+    uint32_t _recSampleRate;
+    uint32_t _recBlockSize;
+    uint32_t _recChannels;
 
     std::mutex m_device_mutex;
+    bool m_recorde_initialized = false; //录音设备是否已经初始化
+    bool m_recording = false;//是否正在录音
+    bool m_playout_initialized = false;//播放设备是否已经初始化
+    bool m_playing = false;//是否正在播放
+
+    std::shared_ptr<std::thread> m_capture_thread;
 };
 

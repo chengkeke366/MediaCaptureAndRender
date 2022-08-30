@@ -1,5 +1,6 @@
 #include "AudioDeviceModule.h"
 #include <functiondiscoverykeys_devpkey.h>
+#include <memory>
 #include <iostream>
 #include "tools/string_utils.h"
 //为什么使用Do wihle(0)结构：https://blog.csdn.net/qq_27575841/article/details/104332888
@@ -293,7 +294,7 @@ int32_t AudioDeviceModule::InitRecording(uint8_t channel, uint32_t SampleRate, u
     // specified stream format, it returns S_OK. If the method succeeds and
     // provides a closest match to the specified format, it returns S_FALSE.
     hr = m_in_client->IsFormatSupported(
-            AUDCLNT_SHAREMODE_SHARED, (WAVEFORMATEX*)&Wfx, &pWfxClosestMatch);
+            AUDCLNT_SHAREMODE_EXCLUSIVE, (WAVEFORMATEX*)&Wfx, &pWfxClosestMatch);
     if (hr != S_OK) {
         if (pWfxClosestMatch) {
             std::cout << "nChannels=" << Wfx.Format.nChannels
@@ -314,10 +315,15 @@ int32_t AudioDeviceModule::InitRecording(uint8_t channel, uint32_t SampleRate, u
     }
 
     if (hr == S_OK) {
+        _recAudioFrameSize = Wfx.Format.nBlockAlign;
+        _recSampleRate = Wfx.Format.nSamplesPerSec;
+        _recBlockSize = Wfx.Format.nSamplesPerSec / 100;
+        _recChannels = Wfx.Format.nChannels;
+
         // Create a capturing stream.
         hr = m_in_client->Initialize(
-                AUDCLNT_SHAREMODE_EXCLUSIVE,  // share Audio Engine with other applications
-               // AUDCLNT_STREAMFLAGS_EVENTCALLBACK |  // processing of the audio buffer by the client will be event driven
+                AUDCLNT_SHAREMODE_SHARED,  // share Audio Engine with other applications
+                 AUDCLNT_STREAMFLAGS_EVENTCALLBACK |  // processing of the audio buffer by the client will be event driven
                 AUDCLNT_STREAMFLAGS_NOPERSIST,   // volume and mute settings for an audio session will not persist across system restarts
                 0,                    // required for event-driven shared mode
                 0,                    // periodicity
@@ -328,6 +334,9 @@ int32_t AudioDeviceModule::InitRecording(uint8_t channel, uint32_t SampleRate, u
             std::cout << "IAudioClient::Initialize() failed:" << std::endl;
         } else {
             hr = m_in_client->SetEventHandle(_hCaptureSamplesReadyEvent);
+            uint32_t size;
+            m_in_client->GetBufferSize(&size);
+            std::cout << "IAudioClient::GetBufferSize() :" << size <<std::endl;
             if (SUCCEEDED(hr)) {
                 hr = m_in_client->GetService(__uuidof(IAudioCaptureClient),
                                              (void **) &m_auido_capture_client);
@@ -337,6 +346,8 @@ int32_t AudioDeviceModule::InitRecording(uint8_t channel, uint32_t SampleRate, u
     } else {
         std::cout << "Is not Supported the format" << std::endl;
     }
+    m_recorde_initialized = true;
+    CoTaskMemFree(pWfxIn);
     CoTaskMemFree(pWfxClosestMatch);
     return 0;
 }
@@ -345,8 +356,22 @@ int32_t AudioDeviceModule::InitPlayout(uint8_t channel, uint32_t SampleRate, uin
     return 0;
 }
 
-void AudioDeviceModule::StartRecorde(const char *output_file) {
-
+int32_t AudioDeviceModule::StartRecorde(const char *output_file) {
+    if(!m_recorde_initialized)
+    {
+        std::cout << __FUNCTION__ <<" recorde device is not init"<<std::endl;
+        return -1;
+    }
+    if (m_recording){
+        return 0;
+    }
+    m_capture_thread = std::shared_ptr<std::thread>(new std::thread(&AudioDeviceModule::DoCaptureThread,this), [&](std::thread *p){
+        if(p->joinable()){
+            p->join();
+        }
+        m_recorde_initialized = false;
+        m_recording = false;
+    });
 }
 
 int32_t AudioDeviceModule::StartPlayout(const char *intput_file) {
@@ -399,6 +424,68 @@ int32_t AudioDeviceModule::SetMicrophoneMute(bool enable) {
 
 int32_t AudioDeviceModule::MicrophoneMute(bool &enabled) {
     return 0;
+}
+
+int32_t AudioDeviceModule::DoCaptureThread() {
+
+    // Get size of capturing buffer (length is expressed as the number of audio
+    // frames the buffer can hold). This value is fixed during the capturing
+    // session.
+    //
+    UINT32 bufferLength = 0;
+    if (m_in_client == NULL) {
+      std::cout << "input state has been modified before capture loop starts.";
+        return 1;
+    }
+    auto hr = m_in_client->GetBufferSize(&bufferLength);
+
+    std::cout <<  "[CAPT] size of buffer       : " << bufferLength << std::endl;
+
+    // Allocate memory for sync buffer.
+    // It is used for compensation between native 44.1 and internal 44.0 and
+    // for cases when the capture buffer is larger than 10ms.
+    //
+    const UINT32 syncBufferSize = 2 * (bufferLength * _recAudioFrameSize);
+    BYTE *syncBuffer = new BYTE[syncBufferSize];
+    if (syncBuffer == NULL) {
+        return (DWORD)E_POINTER;
+    }
+    std::cout << "[CAPT] size of sync buffer  : " << syncBufferSize
+                  << " [bytes]" << std::endl;
+
+    // Get maximum latency for the current stream (will not change for the
+    // lifetime of the IAudioClient object).
+
+    REFERENCE_TIME latency;
+    m_in_client->GetStreamLatency(&latency);
+    std::cout << "[CAPT] max stream latency   : " << (DWORD)latency
+                  << " (" << (double)(latency / 10000.0) << " ms)" << std::endl;
+
+    // Get the length of the periodic interval separating successive processing
+    // passes by the audio engine on the data in the endpoint buffer.
+    //
+    REFERENCE_TIME devPeriod = 0;
+    REFERENCE_TIME devPeriodMin = 0;
+    //获取当前流的延迟
+    m_in_client->GetDevicePeriod(&devPeriod, &devPeriodMin);
+    std::cout << "[CAPT] device period        : " << (DWORD)devPeriod
+                  << " (" << (double)(devPeriod / 10000.0) << " ms)" << std::endl;
+
+    double extraDelayMS = (double)((latency + devPeriod) / 10000.0);
+    std::cout << "[CAPT] extraDelayMS         : " << extraDelayMS << std::endl;
+
+    double endpointBufferSizeMS =
+            10.0 * ((double)bufferLength / (double)_recBlockSize);
+    std::cout << "[CAPT] endpointBufferSizeMS : "
+                  << endpointBufferSizeMS << std::endl;
+
+    // Start up the capturing stream.
+    m_in_client->Start();
+
+    // Set event which will ensure that the calling thread modifies the recording state to true.
+    SetEvent(_hCaptureStartedEvent);
+
+
 }
 
 
